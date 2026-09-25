@@ -106,15 +106,16 @@ class Parser:
 
     def parse_expression(self):
         # Comparações têm menor precedência que soma e subtração.
+        # Apenas UMA comparação por expressão: cadeias como 1 < 2 < 3 seriam
+        # avaliadas da esquerda para a direita com booleanos, o que é enganoso.
         left = self.parse_arithmetic()
         token = self.current()
-        while token is not None and token.tipo in (
+        if token is not None and token.tipo in (
             "IGUALDADE", "DIFERENCA", "MENOR", "MAIOR", "MENOR_IGUAL", "MAIOR_IGUAL"
         ):
             self.position += 1
             right = self.parse_arithmetic()
             left = BinaryExpression(left, token.valor, right)
-            token = self.current()
         return left
 
     def parse_arithmetic(self):
