@@ -1,0 +1,4 @@
+idade = 20 + 5 * 2;
+bonus = 10;
+total = idade + bonus * 2;
+resultado = (20 + 5) * 2;
