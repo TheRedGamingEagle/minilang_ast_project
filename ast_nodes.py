@@ -1,6 +1,7 @@
 """Declara os nós que podem formar a árvore sintática abstrata (AST)."""
 
 from dataclasses import dataclass
+from typing import Optional
 
 # Classe-base comum para todos os elementos da AST.
 class ASTNode:
@@ -17,6 +18,7 @@ class Identifier(ASTNode):
     name: str
 
 # Representa uma operação entre duas expressões, como 2 + 3.
+# Operações de comparação (==, !=, <, >, <=, >=) usam o mesmo nó.
 @dataclass
 class BinaryExpression(ASTNode):
     left: ASTNode
@@ -28,3 +30,25 @@ class BinaryExpression(ASTNode):
 class Assignment(ASTNode):
     target: Identifier
     value: ASTNode
+
+# Agrupa uma sequência de instruções entre chaves { }.
+@dataclass
+class Block(ASTNode):
+    statements: list[ASTNode]
+
+# Representa uma escolha: if (condição) { bloco } else { bloco }.
+# else_branch é None quando não há else; pode ser um Block ou outro If (else if).
+@dataclass
+class If(ASTNode):
+    condition: ASTNode
+    then_branch: ASTNode
+    else_branch: Optional[ASTNode] = None
+
+# Representa um laço: for (init; condição; atualização) { bloco }.
+# init e update são Assignment; condition é expressão de comparação.
+@dataclass
+class For(ASTNode):
+    init: Assignment
+    condition: ASTNode
+    update: Assignment
+    body: Block

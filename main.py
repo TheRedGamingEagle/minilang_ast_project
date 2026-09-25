@@ -22,28 +22,25 @@ def executar(codigo, interpreter):
     parser = Parser(tokens)
     ast = parser.parse()
 
-    # Exibe a estrutura criada pelo parser.
-    print("\nAST:")
-    print_ast(ast)
+    # Exibe a estrutura criada pelo parser (uma instrução por linha do arquivo).
+    for statement in ast:
+        print("\nAST:")
+        print_ast(statement)
 
-    # Etapa 3: avalia a AST e atualiza a memória do interpretador.
-    resultado = interpreter.evaluate(ast)
-    print("\nRESULTADO:", resultado)
-    print("MEMÓRIA:", interpreter.memory)
+        # Etapa 3: avalia a AST e atualiza a memória do interpretador.
+        resultado = interpreter.evaluate(statement)
+        print("\nRESULTADO:", resultado)
+        print("MEMÓRIA:", interpreter.memory)
 
 def main():
     # Um único interpretador permite que as atribuições sejam reutilizadas.
     interpreter = Interpreter()
-    # O arquivo .mini contém o código-fonte do exemplo, uma instrução por linha.
+    # O arquivo .mini contém o código-fonte do exemplo completo do programa.
     arquivo_exemplo = Path(__file__).with_name("calcula_bonus.mini")
-    exemplos = arquivo_exemplo.read_text(encoding="utf-8").splitlines()
+    codigo = arquivo_exemplo.read_text(encoding="utf-8")
 
-    # Ignora linhas vazias para que possam ser usadas apenas para organizar o arquivo.
-    exemplos = [codigo.strip() for codigo in exemplos if codigo.strip()]
-
-    # Cada instrução percorre o pipeline completo da MiniLang.
-    for codigo in exemplos:
-        executar(codigo, interpreter)
+    # O programa inteiro percorre o pipeline completo da MiniLang.
+    executar(codigo, interpreter)
 
 # Executa a demonstração somente quando este arquivo é chamado diretamente.
 if __name__ == "__main__":
