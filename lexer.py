@@ -2,9 +2,10 @@
 
 from token_model import Token
 
-# Palavras reservadas da estrutura de controle da linguagem.
+# Palavras reservadas da estrutura de controle e das funções da linguagem.
 PALAVRAS_RESERVADAS = {
-    "if": "IF", "else": "ELSE", "for": "FOR"
+    "if": "IF", "else": "ELSE", "for": "FOR",
+    "while": "ENQUANTO", "function": "FUNCAO", "return": "RETORNAR"
 }
 
 # Relaciona cada operador ou delimitador ao tipo usado pelo parser.
@@ -13,7 +14,7 @@ MAPA = {
     "*": "MULTIPLICACAO", "/": "DIVISAO", ";": "PONTO_E_VIRGULA",
     "(": "ABRE_PARENTESES", ")": "FECHA_PARENTESES",
     "{": "ABRE_CHAVES", "}": "FECHA_CHAVES",
-    "<": "MENOR", ">": "MAIOR"
+    "<": "MENOR", ">": "MAIOR", ",": "VIRGULA"
 }
 
 # Operadores de comparação de dois caracteres, casados antes do "=" simples.

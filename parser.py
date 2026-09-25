@@ -2,12 +2,12 @@
 
 from ast_nodes import (
     Number, Identifier, BinaryExpression, Assignment,
-    Block, If, For,
+    Block, If, For, While, FunctionDef, Call, Return,
 )
 
 # Parser descendente recursivo para a gramática da linguagem.
 # Programa -> Instrução | Instrução Programa
-# Instrução -> Atribuição | If | For
+# Instrução -> Atribuição | If | For | While | FunctionDef | Return | Call
 class Parser:
     def __init__(self, tokens):
         # A lista de tokens é consumida da esquerda para a direita.
@@ -18,6 +18,11 @@ class Parser:
     def current(self):
         # Retorna o token atual ou None quando todos já foram consumidos.
         return self.tokens[self.position] if self.position < len(self.tokens) else None
+
+    def peek(self, offset=1):
+        # Olha um token à frente sem consumi-lo.
+        posicao = self.position + offset
+        return self.tokens[posicao] if posicao < len(self.tokens) else None
 
     def consume(self, tipo):
         # Confere o tipo esperado e avança a posição em caso de sucesso.
@@ -48,7 +53,60 @@ class Parser:
             return self.parse_if()
         if token.tipo == "FOR":
             return self.parse_for()
-        return self.parse_assignment()
+        if token.tipo == "ENQUANTO":
+            return self.parse_while()
+        if token.tipo == "FUNCAO":
+            return self.parse_function()
+        if token.tipo == "RETORNAR":
+            return self.parse_return()
+        if token.tipo == "IDENTIFICADOR":
+            seguinte = self.peek()
+            if seguinte is not None and seguinte.tipo == "ABRE_PARENTESES":
+                # nome( ... é uma chamada usada como instrução (ex.: somar(2);)
+                chamada = self.parse_call()
+                self.consume("PONTO_E_VIRGULA")
+                return chamada
+            return self.parse_assignment()
+        raise SyntaxError(f"Instrução inesperada: {token.tipo} ({token.valor}).")
+
+    def parse_while(self):
+        # Um while segue o formato: while (condição) { bloco }.
+        self.consume("ENQUANTO")
+        self.consume("ABRE_PARENTESES")
+        condition = self.parse_expression()
+        self.consume("FECHA_PARENTESES")
+        body = self.parse_block()
+        return While(condition, body)
+
+    def parse_function(self):
+        # Uma função segue o formato: function nome(a, b) { ... }.
+        self.consume("FUNCAO")
+        nome = self.consume("IDENTIFICADOR")
+        self.consume("ABRE_PARENTESES")
+        params: list = []
+        token = self.current()
+        if token is not None and token.tipo != "FECHA_PARENTESES":
+            params.append(self.consume("IDENTIFICADOR").valor)
+            while True:
+                separador = self.current()
+                if separador is None or separador.tipo != "VIRGULA":
+                    break
+                self.position += 1
+                params.append(self.consume("IDENTIFICADOR").valor)
+        self.consume("FECHA_PARENTESES")
+        body = self.parse_block()
+        return FunctionDef(nome.valor, params, body)
+
+    def parse_return(self):
+        # Um return segue o formato: return ; ou return expressão ;
+        self.consume("RETORNAR")
+        token = self.current()
+        if token is not None and token.tipo != "PONTO_E_VIRGULA":
+            nodo = Return(self.parse_expression())
+            self.consume("PONTO_E_VIRGULA")
+            return nodo
+        self.consume("PONTO_E_VIRGULA")
+        return Return(None)
 
     def parse_assignment(self, needs_semicolon=True):
         # Uma atribuição segue o formato: identificador = expressão ;
@@ -153,6 +211,9 @@ class Parser:
             except ValueError:
                 raise SyntaxError(f"Número inválido: {token.valor}")
         if token.tipo == "IDENTIFICADOR":
+            seguinte = self.peek()
+            if seguinte is not None and seguinte.tipo == "ABRE_PARENTESES":
+                return self.parse_call()
             # A resolução do valor da variável fica para o interpretador.
             self.position += 1
             return Identifier(token.valor)
@@ -163,3 +224,20 @@ class Parser:
             self.consume("FECHA_PARENTESES")
             return expr
         raise SyntaxError(f"Token inesperado: {token.tipo} ({token.valor})")
+
+    def parse_call(self):
+        # Uma chamada segue o formato: nome(argumento, argumento).
+        nome = self.consume("IDENTIFICADOR")
+        self.consume("ABRE_PARENTESES")
+        args: list = []
+        token = self.current()
+        if token is not None and token.tipo != "FECHA_PARENTESES":
+            args.append(self.parse_expression())
+            while True:
+                separador = self.current()
+                if separador is None or separador.tipo != "VIRGULA":
+                    break
+                self.position += 1
+                args.append(self.parse_expression())
+        self.consume("FECHA_PARENTESES")
+        return Call(nome.valor, args)

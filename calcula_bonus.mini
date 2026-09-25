@@ -17,3 +17,21 @@ if (total == 56) {
 } else {
   resultado = 200;
 }
+
+soma = 0;
+n = 1;
+while (n <= 10) {
+  soma = soma + n;
+  n = n + 1;
+}
+
+function dobro(value) {
+  return value * 2;
+}
+dobrado = dobro(soma);
+
+function somarTudo(a, b, c) {
+  return a + b + c;
+}
+combinado = somarTudo(dobrado, total, categoria);
+somarTudo(1, 2, 3);

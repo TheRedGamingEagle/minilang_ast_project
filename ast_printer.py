@@ -1,8 +1,8 @@
 """Imprime a árvore sintática abstrata em um formato hierárquico legível."""
 
 from ast_nodes import (
-    Number, Identifier, BinaryExpression, Assignment,
-    Block, If, For,
+Number, Identifier, BinaryExpression, Assignment,
+Block, If, For, While, FunctionDef, Call, Return,
 )
 
 def print_ast(node, indent=""):
@@ -35,6 +35,29 @@ def print_ast(node, indent=""):
         print_ast(node.update, indent + "    ")
         print(indent + "  body:")
         print_ast(node.body, indent + "    ")
+    elif isinstance(node, While):
+        # Mostra a condição verificada a cada repetição.
+        print(indent + "While")
+        print(indent + "  condition:")
+        print_ast(node.condition, indent + "    ")
+        print(indent + "  body:")
+        print_ast(node.body, indent + "    ")
+    elif isinstance(node, FunctionDef):
+        # Mostra o nome, os parâmetros e o corpo da função.
+        params = ", ".join(node.params)
+        print(indent + f"FunctionDef({node.name}({params}))")
+        print(indent + "  body:")
+        print_ast(node.body, indent + "    ")
+    elif isinstance(node, Call):
+        # Mostra a função chamada e cada argumento.
+        print(indent + f"Call({node.name})")
+        for argumento in node.args:
+            print_ast(argumento, indent + "  ")
+    elif isinstance(node, Return):
+        # Mostra o valor devolvido, quando existe.
+        print(indent + "Return")
+        if node.value is not None:
+            print_ast(node.value, indent + "  ")
     elif isinstance(node, Block):
         # Um bloco lista todas as suas instruções sob o mesmo recuo.
         print(indent + "Block")

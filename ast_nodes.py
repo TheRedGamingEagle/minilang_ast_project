@@ -52,3 +52,27 @@ class For(ASTNode):
     condition: ASTNode
     update: Assignment
     body: Block
+
+# Representa um laço: while (condição) { bloco }.
+@dataclass
+class While(ASTNode):
+    condition: ASTNode
+    body: Block
+
+# Representa uma declaração: function nome(a, b) { ... }.
+@dataclass
+class FunctionDef(ASTNode):
+    name: str
+    params: list[str]
+    body: Block
+
+# Representa uma chamada: nome(expr, expr).
+@dataclass
+class Call(ASTNode):
+    name: str
+    args: list[ASTNode]
+
+# Representa: return [expressão] ;
+@dataclass
+class Return(ASTNode):
+    value: Optional[ASTNode] = None

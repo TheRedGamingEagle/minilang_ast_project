@@ -80,11 +80,49 @@ com a aritmética existente (por exemplo, `if (a * 2 + 1 >= b) { ... }`).
 
 ### Regras da gramática
 
-- `if` e `for` exigem parênteses na condição/cláusulas e chaves nos blocos de corpo.
+- `if`, `while` e `for` exigem parênteses na condição/cláusulas e chaves nos blocos de corpo.
 - O `else` é opcional; `else if` encadeia novas escolhas.
 - O `for` tem três cláusulas separadas por `;`: inicialização, condição e atualização.
   Cada cláusula é uma atribuição comum, sem `;` próprio.
-- Um laço `for` cuja condição nunca se torna falsa é interrompido após 10.000 iterações.
+- Um laço `for` ou `while` cuja condição nunca se torna falsa é interrompido após 10.000 iterações.
+- Cada expressão aceita apenas UM comparador; cadeias como `1 < 2 < 3` são rejeitadas.
+
+## Laços: while
+
+```text
+while (i <= 10) {
+  soma = soma + i;
+  i = i + 1;
+}
+```
+
+A condição é testada antes de cada repetição; um `while` com condição falsa
+de início não executa nada.
+
+## Funções
+
+```text
+function dobro(n) {
+  return n * 2;
+}
+dobrado = dobro(soma);
+
+function media(a, b) {
+  return (a + b) / 2;
+}
+```
+
+- `function nome(parametro, parametro) { ... }` declara a função; a declaração
+  precisa aparecer antes da chamada, pois funções são registradas em tempo de execução.
+- `return expressão;` encerra a função e devolve o valor; `return;` e ausência de
+  `return` devolvem nada.
+- Chamadas funcionam em expressões (`dobro(dobro(5))`) e como instrução solta:
+  `somar(2, 3);`
+- Parâmetros e variáveis novas declaradas dentro da função vivem no escopo local;
+  leituras caem para a memória global quando o nome não é local.
+- Uma variável existente é atualizada onde ela vive (inclusive no global), então
+  acumuladores como `total = total + v;` funcionam dentro de funções.
+- Recursão é suportada, com limite de profundidade da máquina virtual Python.
 
 ## O que já funciona
 
@@ -93,13 +131,16 @@ com a aritmética existente (por exemplo, `if (a * 2 + 1 >= b) { ... }`).
 - atribuição
 - +, -, *, / com precedência e parênteses
 - comparações ==, !=, <, >, <=, >=
-- variáveis em memória
+- variáveis em memória com escopo local para funções
 - blocos com chaves { }
 - if / else / else if
 - laço for com init, condição e update
+- laço while com condição e corpo
+- funções com parâmetros, return e recursão
+- chamadas em expressões ou como instrução
 - AST
 - interpretação
 
 ## Próximos passos
 
-`let`, `print`, `while`, escopo de blocos, análise semântica e geração de código C.
+`let`, `print`, strings, escopo de blocos, análise semântica e geração de código C.
